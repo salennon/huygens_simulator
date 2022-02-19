@@ -2,8 +2,10 @@
 Classes to simulate wavelets of Huygens principle
 '''
 
+from matplotlib.animation import FuncAnimation
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 class Wavelet():
     '''
@@ -82,7 +84,48 @@ class Simulator():
         for wavelet in self.wavelets:
             field += wavelet.field(time, self.x_mesh, self.y_mesh)
 
-        return field   
+        return field
+
+
+    def animate(self, fig, ax, start, stop, time_step, filename):
+        '''
+        Simulate and generate animation over given timeframe between start 
+        and stop with given time_step. 
+        Animation is drawn on given figure and axis, and saved to filename
+
+        TODO:
+        Add clearer progress tracking
+        Formatting of axes etc. - check these can be done externally to the 
+        method
+        '''
+        time_points = np.arange(start, stop, time_step)
+        im = ax.imshow(self.frame(time_points[0]), cmap = 'bwr')
+        fig.colorbar(im)
+
+        def generate_frame(i):
+            '''Generate each frame of the animation using frame index i'''
+            field = self.frame(time_points[i])
+            print(i, time_points[i])
+            im.set_array(field)
+            return im,        #FuncAnimation requires iterable returned
+
+        nframes = len(time_points)
+        anim = FuncAnimation(fig, generate_frame, frames = nframes)
+        anim.save(filename, fps = 60)
+
+    # def simulate(self, start, stop, time_step, fig):
+    #     '''
+    #     Simulate fields between start and stop time, with given time step.
+    #     '''
+    #     time_points = np.arange(start, stop, time_step)
+
+    #     for time in time_points:
+    #         field = self.frame(time)
+
+
+
+
+
 
 
     def __str__(self):
@@ -93,29 +136,45 @@ class Simulator():
         
 
 
-
-
 def main():
-    ang_frequency = 2*np.pi/2
-    wave_vector = 2*np.pi/2
+    '''
+    TODO:
+    Make clear individual test cases
+    Optimise wavelet params, make sure that gif loops seamlessly.
+    Centre the wavelet
+    How to handle if simulation doesn't fit within z scale?
+    '''
+    
 
-    wavelet = Wavelet(2*np.pi/2, 2*np.pi/2, (5,5))
+    ang_frequency = np.pi/5
+    wave_vector = 2*np.pi/2
+    pos = (5,5)
+
+    wavelet = Wavelet(ang_frequency, wave_vector, pos)
     print(wavelet)
     
     wavelets = [wavelet]
 
-    x = np.linspace(0, 10, 1000)
-    y = np.linspace(0, 10, 1000)
+    x = np.linspace(0, 20, 1000)
+    y = np.linspace(0, 20, 1000)
     x_mesh, y_mesh = np.meshgrid(x, y)
 
     simulator = Simulator(wavelets, x_mesh, y_mesh)
     print(simulator)
 
+    fig, ax = plt.subplots()
+    start = 0.0
+    stop = 10.0
+    time_step = 0.25
 
-    field = simulator.frame(11)
-    # field = wavelet.field(11, x_mesh, y_mesh)
-    plt.imshow(field)
-    plt.show()
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    filename = f'{dir_path}/output/test.gif'
+    simulator.animate(fig, ax, start, stop, time_step, filename)
+
+    # field = simulator.frame(11)
+    # # field = wavelet.field(11, x_mesh, y_mesh)
+    # # plt.imshow(field)
+    # # plt.show()
 
 if __name__ == "__main__":
     main()
