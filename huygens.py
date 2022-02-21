@@ -62,18 +62,20 @@ class Simulator():
     Handle simulation of given wavelets
     '''
 
-    def __init__(self, wavelets, x_mesh, y_mesh):
+    def __init__(self, wavelets, x, y):
         '''
         Init with a given list of wavelet objects
-        x_mesh and y_mesh define simulation region
+        x and y should be arrays to define simulation region
         '''
         self.wavelets = wavelets
+        self.x = x
+        self.y = y
 
-        assert x_mesh.shape == y_mesh.shape, \
-            "x mesh and y mesh must have the same shape"
-        self.x_mesh = x_mesh
-        self.y_mesh = y_mesh
-        self.mesh_shape = x_mesh.shape
+        #Generate co-ordinate mesh
+        self.x_mesh, self.y_mesh = np.meshgrid(x, y)
+        assert self.x_mesh.shape == self.y_mesh.shape, \
+                'X mesh and Y mesh should have the same shape'
+        self.mesh_shape = self.x_mesh.shape
 
 
     def frame(self, time):
@@ -89,39 +91,73 @@ class Simulator():
 
     def animate(self, fig, ax, start, stop, time_step, filename):
         '''
-        Simulate and generate animation over given timeframe between start 
-        and stop with given time_step. 
+        Simulate fields and generate animation over given timeframe between 
+        start and stop with given time_step. 
         Animation is drawn on given figure and axis, and saved to filename
 
         TODO:
-        Add clearer progress tracking
         Formatting of axes etc. - check these can be done externally to the 
         method
+        Check that the right frames are displayed
         '''
         time_points = np.arange(start, stop, time_step)
-        im = ax.imshow(self.frame(time_points[0]), cmap = 'bwr')
-        fig.colorbar(im)
 
+        #Use first frame to set z scale
+        extent = (min(self.x), max(self.x), min(self.y), max(self.y))
+        im = ax.imshow(self.frame(time_points[0]), cmap = 'RdBu', extent = extent,
+                        origin = 'lower')
+        
+        #Formatting
+        fig.colorbar(im)
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        
         def generate_frame(i):
             '''Generate each frame of the animation using frame index i'''
+            self.print_progress(i, num_frames)
             field = self.frame(time_points[i])
-            print(i, time_points[i])
             im.set_array(field)
             return im,        #FuncAnimation requires iterable returned
 
-        nframes = len(time_points)
-        anim = FuncAnimation(fig, generate_frame, frames = nframes)
+        #Simulate + generate animation
+        num_frames = len(time_points)
+        print(f'\nGenerating Animation of {num_frames} frames.\nSimulating...\n')
+        anim = FuncAnimation(fig, generate_frame, frames = num_frames)
         anim.save(filename, fps = 60)
+        print(f'\nAnimation saved to {filename}\n')
 
-    # def simulate(self, start, stop, time_step, fig):
-    #     '''
-    #     Simulate fields between start and stop time, with given time step.
-    #     '''
-    #     time_points = np.arange(start, stop, time_step)
 
-    #     for time in time_points:
-    #         field = self.frame(time)
+    def simulate(self, start, stop, time_step):
+        '''
+        Simulate fields between start and stop time, with given time step.
+        Results returned as a 3D array
 
+        TODO:
+        Test this method
+        '''
+        time_points = np.arange(start, stop, time_step)
+        y_dim = self.mesh_shape[0]
+        x_dim = self.mesh_shape[1]
+        t_dim = len(time_points)
+        result = np.empty((t_dim, y_dim, x_dim), dtype='float32')
+
+        for i, time in enumerate(time_points):
+            self.print_progress(i, t_dim)
+            field = self.frame(time)
+            result[i] = field
+        
+        return result
+
+
+    @staticmethod
+    def print_progress(i, num_frames, interval = 10):
+        '''
+        Print progress at given interval during simulation etc.
+        i is the current frame index
+        '''
+        fr_num = i+1    #Convert from 0 indexed to 1
+        if fr_num % interval == 0 or fr_num == num_frames:
+            print(f'{fr_num}/{num_frames}')
 
 
 
@@ -155,28 +191,35 @@ def main():
     
     wavelets = [wavelet]
 
+    # positions = [(5,y) for y in range(1,20)]
+    # wavelets = [Wavelet(ang_frequency, wave_vector, pos) for pos in positions]
+
     x = np.linspace(0, 20, 1000)
     y = np.linspace(0, 20, 1000)
-    x_mesh, y_mesh = np.meshgrid(x, y)
 
-    simulator = Simulator(wavelets, x_mesh, y_mesh)
+    simulator = Simulator(wavelets, x, y)
     print(simulator)
 
     fig, ax = plt.subplots()
     start = 0.0
     stop = 10.0
-    time_step = 0.25
+    time_step = 0.2
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
     filename = f'{dir_path}/output/test.gif'
     simulator.animate(fig, ax, start, stop, time_step, filename)
+
+    # result = simulator.simulate(start, stop, time_step)
+
+    # plt.imshow(result[5])
+    # plt.show()
 
     # field = simulator.frame(11)
     # # field = wavelet.field(11, x_mesh, y_mesh)
     # # plt.imshow(field)
     # # plt.show()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
 
 
