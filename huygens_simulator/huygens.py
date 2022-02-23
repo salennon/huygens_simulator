@@ -171,51 +171,20 @@ class Simulator():
 
 
 def main():
-    '''
-    TODO:
-    Make clear individual test cases
-    Optimise wavelet params, make sure that gif loops seamlessly.
-    Centre the wavelet
-    How to handle if simulation doesn't fit within z scale?
-    '''
-    
+    print('''
+        huygens.py is a module containing classes to perform a 2D simulation of
+        Huygens-Fresnel Principle - summing the contributions of multiple 
+        spherical wavelets to generate a resultant wavefront
 
-    ang_frequency = np.pi/5
-    wave_vector = 2*np.pi/2
-    pos = (5,5)
+        Usage:
+        Simulator instance handles the simulation - provide this with an
+        iterable of wavelets (see Wavelet class) to be simulated, plus 
+        simulation settings.
+        Wavelet class handles each wavelet - initialize these first to be used
+        by Simulator.
 
-    wavelet = Wavelet(ang_frequency, wave_vector, pos)
-    print(wavelet)
-    
-    wavelets = [wavelet]
+        ''')
 
-    # positions = [(5,y) for y in range(1,20)]
-    # wavelets = [Wavelet(ang_frequency, wave_vector, pos) for pos in positions]
-
-    x = np.linspace(0, 20, 1000)
-    y = np.linspace(0, 20, 1000)
-
-    simulator = Simulator(wavelets, x, y)
-    print(simulator)
-
-    fig, ax = plt.subplots()
-    start = 0.0
-    stop = 10.0
-    time_step = 0.2
-
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    filename = f'{dir_path}/output/test.gif'
-    simulator.animate(fig, ax, start, stop, time_step, filename)
-
-    # result = simulator.simulate(start, stop, time_step)
-
-    # plt.imshow(result[5])
-    # plt.show()
-
-    # field = simulator.frame(11)
-    # # field = wavelet.field(11, x_mesh, y_mesh)
-    # # plt.imshow(field)
-    # # plt.show()
 
 if __name__ == '__main__':
     main()
