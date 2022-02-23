@@ -41,16 +41,19 @@ class Wavelet():
         r-r0 is the displacement vector from the wavelet
 
         Real value of field is returned (corresponds to physical situation)
+
+        TODO
+        Replace unnecessary complex number with cos
         '''
         #Calculate displacement co-ords relative to wavelet location
         x_displacement = x_mesh - self.position[0]
         y_displacement = y_mesh - self.position[1]
         displacement = (x_displacement**2 + y_displacement**2)**0.5
 
-        field = self.amplitude*np.exp(1j*(self.wave_vector*displacement - \
-                self.ang_frequency*time + self.phase))
+        field = self.amplitude*np.cos(self.wave_vector*displacement - \
+                self.ang_frequency*time + self.phase)
 
-        return field.real
+        return field
 
 
     def __str__(self):
@@ -60,6 +63,9 @@ class Wavelet():
 class Simulator():
     '''
     Handle simulation of given wavelets
+
+    The simulation is a superposition (i.e. the sum) of the fields of all the 
+    wavelets
     '''
 
     def __init__(self, wavelets, x, y):
@@ -158,10 +164,6 @@ class Simulator():
         fr_num = i+1    #Convert from 0 indexed to 1
         if fr_num % interval == 0 or fr_num == num_frames:
             print(f'{fr_num}/{num_frames}')
-
-
-
-
 
 
     def __str__(self):
