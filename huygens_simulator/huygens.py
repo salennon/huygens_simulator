@@ -41,9 +41,6 @@ class Wavelet():
         r-r0 is the displacement vector from the wavelet
 
         Real value of field is returned (corresponds to physical situation)
-
-        TODO
-        Replace unnecessary complex number with cos
         '''
         #Calculate displacement co-ords relative to wavelet location
         x_displacement = x_mesh - self.position[0]
@@ -104,7 +101,6 @@ class Simulator():
         TODO:
         Formatting of axes etc. - check these can be done externally to the 
         method
-        Check that the right frames are displayed
         '''
         time_points = np.arange(start, stop, time_step)
 
