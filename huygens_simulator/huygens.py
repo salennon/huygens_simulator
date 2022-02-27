@@ -27,12 +27,11 @@ class Wavelet():
         co-ordinates in x_mesh and y_mesh arrays.
 
         Field is calculated according to:
-        E(r,t) = A*exp(j*[k*(r-r0) - wt + phi])
+        E(r,t) = A*cos[k*(r-r0) - wt + phi]
 
         Where:
         E is the field
         A is amplitude
-        j is the imaginary unit (-1**0.5)
         k is wave vector
         r is general position co-ordinate
         r0 is wavelet position
@@ -40,7 +39,7 @@ class Wavelet():
         phi is phase
         r-r0 is the displacement vector from the wavelet
 
-        Real value of field is returned (corresponds to physical situation)
+        The values of the field as a function of position are returned
         '''
         #Calculate displacement co-ords relative to wavelet location
         x_displacement = x_mesh - self.position[0]
@@ -134,6 +133,9 @@ class Simulator():
         Simulate fields between start and stop time, with given time step.
         Results returned as a 3D array
 
+        animate method is preferred at this point, which calculates each frame
+        then, animates (so should require less memory usage)
+
         TODO:
         Test this method
         '''
@@ -168,7 +170,6 @@ class Simulator():
             rep += f'\n{wavelet.__str__()}'
         return rep
         
-
 
 def main():
     print('''

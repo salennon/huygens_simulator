@@ -19,10 +19,10 @@ def main():
     wave_vector = 2*np.pi/wavelength
 
     #Wavelet positions
-    x_pos = -40
+    x_pos = -50
     y_pos_min = -50
     y_pos_max = 50
-    num_wavelets = 100
+    num_wavelets = 50
     positions = [(x_pos, y_pos) for y_pos in \
                  np.linspace(y_pos_min, y_pos_max, num_wavelets)]
 
@@ -50,6 +50,7 @@ def main():
 
     #Generate simulation and animation
     fig, ax = plt.subplots()
+    ax.set_title('Planar wavefront')
     dir_path = os.path.dirname(os.path.realpath(__file__))
     filename = f'{dir_path}/output/wavefront.gif'
     simulator.animate(fig, ax, start, stop, time_step, filename)

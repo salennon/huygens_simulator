@@ -42,6 +42,7 @@ def main():
 
     #Generate simulation and animation
     fig, ax = plt.subplots()
+    ax.set_title('Single wavelet')
     dir_path = os.path.dirname(os.path.realpath(__file__))
     filename = f'{dir_path}/output/single_wavelet.gif'
     simulator.animate(fig, ax, start, stop, time_step, filename)
